@@ -29,19 +29,18 @@ if ($currentPage === 'visit-ao') {
     ];
 } elseif ($currentPage === 'e-prospek') {
     $navItems = [
-        ['page' => 'dashboard', 'label' => 'Home',   'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'],
-        ['page' => 'e-prospek', 'label' => 'Semua',  'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>'],
-        ['page' => 'e-prospek', 'label' => 'Tambah', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>'],
-        ['page' => 'e-prospek', 'label' => 'Hot',    'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>'],
-        ['page' => 'e-prospek', 'label' => 'Filter', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>'],
+        ['page' => 'e-prospek', 'tab' => 'home',     'label' => 'Home',    'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'],
+        ['page' => 'e-prospek', 'tab' => 'list',     'label' => 'Semua',   'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>'],
+        ['page' => 'e-prospek', 'tab' => 'form',     'label' => 'Tambah',  'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>'],
+        ['page' => 'e-prospek', 'tab' => 'list',     'label' => 'Hot',     'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>', 'extra' => 'score=hot'],
+        ['page' => 'dashboard',  'label' => 'Home Utama', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'],
     ];
 } elseif ($currentPage === 'e-pipelane') {
     $navItems = [
-        ['page' => 'dashboard',  'label' => 'Home',    'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'],
-        ['page' => 'e-pipelane', 'label' => 'Aktif',   'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>'],
-        ['page' => 'e-pipelane', 'label' => 'Proses',  'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>'],
-        ['page' => 'e-pipelane', 'label' => 'Selesai', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'],
-        ['page' => 'e-pipelane', 'label' => 'Laporan', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'],
+        ['page' => 'e-pipelane', 'tab' => 'home',   'label' => 'Home',    'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'],
+        ['page' => 'e-pipelane', 'tab' => 'list',   'label' => 'Pipeline','icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>'],
+        ['page' => 'e-pipelane', 'tab' => 'list',   'label' => 'Overdue', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>', 'extra' => 'filter=overdue'],
+        ['page' => 'dashboard',  'label' => 'Home Utama', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'],
     ];
 } elseif ($currentPage === 'call-ao') {
     $navItems = [
@@ -53,21 +52,24 @@ if ($currentPage === 'visit-ao') {
     ];
 }
 
-/** Build href untuk nav item, support tab. */
+/** Build href untuk nav item, support tab + extra params. */
 function bnav_href(array $item): string {
     $href = BASE_URL . $item['page'];
-    if (!empty($item['tab'])) $href .= '?tab=' . $item['tab'];
+    $params = [];
+    if (!empty($item['tab'])) $params[] = 'tab=' . $item['tab'];
+    if (!empty($item['extra'])) $params[] = $item['extra'];
+    if (!empty($params)) $href .= '?' . implode('&', $params);
     return $href;
 }
 
 /** Cek apakah item aktif. */
 function bnav_is_active(array $item, string $currentPage, ?string $currentTab): bool {
-    // Khusus visit-ao: bandingkan page + tab
-    if ($currentPage === 'visit-ao' && isset($item['tab'])) {
+    // Tab-aware nav untuk page yang punya tab
+    if (in_array($currentPage, ['visit-ao', 'e-prospek', 'e-pipelane'], true) && isset($item['tab'])) {
         $effectiveTab = $currentTab ?: 'home';
-        return $item['page'] === 'visit-ao' && $item['tab'] === $effectiveTab;
+        return $item['page'] === $currentPage && $item['tab'] === $effectiveTab;
     }
-    // Default lama
+    // Default: cocokkan page (Home label = dashboard)
     return ($currentPage === $item['page'] && ($item['label'] !== 'Home'))
         || ($currentPage === 'dashboard' && $item['label'] === 'Home');
 }

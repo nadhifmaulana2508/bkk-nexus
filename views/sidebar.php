@@ -21,10 +21,10 @@ $menuItems = [
         'label' => 'E-Prospek',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>',
         'sub' => [
-            ['label' => 'Semua Prospek', 'page' => 'e-prospek'],
-            ['label' => 'Tambah Prospek', 'page' => 'e-prospek'],
-            ['label' => 'Hot Leads', 'page' => 'e-prospek'],
-            ['label' => 'Warm Leads', 'page' => 'e-prospek'],
+            ['label' => 'Overview', 'page' => 'e-prospek', 'tab' => 'overview'],
+            ['label' => 'Delegasi', 'page' => 'e-prospek', 'tab' => 'delegasi'],
+            ['label' => 'Semua Prospek', 'page' => 'e-prospek', 'tab' => 'list'],
+            ['label' => 'Report Konversi', 'page' => 'e-prospek', 'tab' => 'report'],
         ]
     ],
     [
@@ -32,10 +32,10 @@ $menuItems = [
         'label' => 'E-Pipelane',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>',
         'sub' => [
-            ['label' => 'Pipeline Aktif', 'page' => 'e-pipelane'],
-            ['label' => 'Dalam Proses', 'page' => 'e-pipelane'],
-            ['label' => 'Selesai / CCL', 'page' => 'e-pipelane'],
-            ['label' => 'Laporan SLA', 'page' => 'e-pipelane'],
+            ['label' => 'Overview', 'page' => 'e-pipelane', 'tab' => 'overview'],
+            ['label' => 'Pipeline Aktif', 'page' => 'e-pipelane', 'tab' => 'list'],
+            ['label' => 'Detail Timeline', 'page' => 'e-pipelane', 'tab' => 'detail'],
+            ['label' => 'Report SLA', 'page' => 'e-pipelane', 'tab' => 'report'],
         ]
     ],
     [
