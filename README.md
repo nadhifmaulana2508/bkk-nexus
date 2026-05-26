@@ -50,13 +50,13 @@
 - **AO Kredit** — kelola prospek baru, proses pengajuan kredit, kunjungan debitur lancar
 - **AO Remedial (Front End / Back End)** — tagih & visit debitur menunggak
 - **CS (Customer Service)** — input prospek dari walk-in / telepon, **eksekusi CCL via WhatsApp** untuk debitur DPD 0–90
-- **PS (Pejabat Senior Cabang)** — supervise CS & AO di cabang, akses CCL untuk monitoring/eskalasi
-- **PE (Pejabat Eksekutif Cabang)** — pejabat eksekutif cabang, akses CCL untuk monitoring/eskalasi
-- **Kabid Pemasaran** — delegasi prospek, monitor pipeline AO
+- **PS (Pejabat Struktural)** — pejabat struktural di unit/cabang (Kabid, Kasi, Kasubsi, dll), akses CCL untuk monitoring/eskalasi
+- **PE (Pejabat Eksekutif)** — pejabat eksekutif yang **hanya ada di Kantor Pusat & level Kacab**, akses CCL & monitoring lintas cabang
+- **Kabid Pemasaran** — delegasi prospek, monitor pipeline AO (sub-bagian dari PS)
 - **Kepala Cabang / Pincab** — approval, monitor cabang, mendelegasi, mapping AO Remedial awal bulan
 - **Admin** — manajemen master data, role, mapping
 
-> Catatan: istilah **PS** & **PE** mengikuti penamaan jabatan di cabang. Konfirmasi mapping ini di `config/role_mapping.php` agar selaras dengan SSO (`job_position`).
+> Catatan: hierarki kasarnya **PE** (Pusat & Kacab) ⟶ **PS** (Pejabat Struktural di unit) ⟶ AO/CS sebagai pelaksana. Konfirmasi mapping detail di `config/role_mapping.php` agar selaras dengan SSO (`job_position` & `level`).
 
 ---
 
@@ -68,8 +68,8 @@
 | `pincab` (Pimpinan Cabang) | ✅ | ✅ (wajib) | Approve | — | ✅ (cabangnya) | ✅ (cabangnya) |
 | `kacab` (Kepala Cabang) | ✅ | ✅ (wajib) | Approve | — | ✅ (cabangnya) | ✅ (cabangnya) |
 | `kabid_pemasaran` | ✅ | ✅ (wajib) | Monitor | — | ✅ (timnya) | ✅ (timnya) |
-| `ps` (Pejabat Senior Cabang) | ✅ | ✅ | Monitor | — | ✅ (cabangnya) | ✅ (cabangnya) |
-| `pe` (Pejabat Eksekutif Cabang) | ✅ | ✅ | Monitor | — | ✅ (cabangnya) | ✅ (cabangnya) |
+| `ps` (Pejabat Struktural) | ✅ | ✅ | Monitor | — | ✅ (unit/cabangnya) | ✅ (unit/cabangnya) |
+| `pe` (Pejabat Eksekutif — Pusat & Kacab) | ✅ | ✅ | Monitor | — | ✅ (lintas/seluruh cabang) | ✅ (lintas/seluruh cabang) |
 | `ao_kredit` | ✅ | — | ✅ (sendiri) | ✅ | — | ❌ (sendiri) |
 | `ao_remedial_fe` | ✅ | — | ✅ (sendiri) | ✅ | — | ❌ (sendiri) |
 | `ao_remedial_be` | ✅ | — | ✅ (sendiri) | ✅ | — | ❌ (sendiri) |
@@ -248,8 +248,8 @@ Data debitur di CCL **dikelompokkan berdasarkan DPD by closing** (posisi akhir h
 | Role | Akses | Aksi |
 | --- | --- | --- |
 | `cs` | ✅ Eksekutor utama | Lihat list, kirim WA, log hasil call/WA |
-| `ps` (Pejabat Senior Cabang) | ✅ Monitor + eksekusi | Lihat list cabangnya, eksekusi jika diperlukan, eskalasi |
-| `pe` (Pejabat Eksekutif Cabang) | ✅ Monitor + eksekusi | Sama dengan PS |
+| `ps` (Pejabat Struktural) | ✅ Monitor + eksekusi | Lihat list di unit/cabangnya, eksekusi jika diperlukan, eskalasi |
+| `pe` (Pejabat Eksekutif — Pusat & Kacab) | ✅ Monitor + eksekusi | Lihat list lintas cabang (Pusat) atau cabangnya (Kacab), eskalasi |
 | `kacab` / `pincab` | ✅ Monitor | Lihat performa CCL cabang, laporan |
 | `ao_kredit` / `ao_remedial` | 👁️ Read-only | Lihat history CCL atas debiturnya (sinergi) |
 
@@ -577,8 +577,8 @@ Mapping otomatis (rule-based di BKK Nexus):
 | --- | --- |
 | `Pimpinan Cabang` / `Kepala Cabang` | `pincab` / `kacab` |
 | `Kabid Pemasaran` | `kabid_pemasaran` |
-| `Pejabat Senior` (di cabang) | `ps` |
-| `Pejabat Eksekutif` (di cabang) | `pe` |
+| `Pejabat Struktural` (Kabid/Kasi/Kasubsi di unit/cabang) | `ps` |
+| `Pejabat Eksekutif` (di Kantor Pusat) atau `level` = Eksekutif + Kacab | `pe` |
 | `AO Kredit` | `ao_kredit` |
 | `AO Remedial` (Front End) | `ao_remedial_fe` |
 | `AO Remedial` (Back End) | `ao_remedial_be` |
