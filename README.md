@@ -49,25 +49,31 @@
 
 - **AO Kredit** — kelola prospek baru, proses pengajuan kredit, kunjungan debitur lancar
 - **AO Remedial (Front End / Back End)** — tagih & visit debitur menunggak
-- **CS (Customer Service)** — input prospek dari walk-in / telepon
+- **CS (Customer Service)** — input prospek dari walk-in / telepon, **eksekusi CCL via WhatsApp** untuk debitur DPD 0–90
+- **PS (Pejabat Senior Cabang)** — supervise CS & AO di cabang, akses CCL untuk monitoring/eskalasi
+- **PE (Pejabat Eksekutif Cabang)** — pejabat eksekutif cabang, akses CCL untuk monitoring/eskalasi
 - **Kabid Pemasaran** — delegasi prospek, monitor pipeline AO
-- **Kepala Cabang / Pincab** — approval, monitor cabang, mendelegasi
+- **Kepala Cabang / Pincab** — approval, monitor cabang, mendelegasi, mapping AO Remedial awal bulan
 - **Admin** — manajemen master data, role, mapping
+
+> Catatan: istilah **PS** & **PE** mengikuti penamaan jabatan di cabang. Konfirmasi mapping ini di `config/role_mapping.php` agar selaras dengan SSO (`job_position`).
 
 ---
 
 ## 2. Pengguna & Hak Akses (Roles)
 
-| Role | Bisa Input Prospek | Bisa Delegasi | Bisa Update Pipeline | Bisa Visit | Lihat Semua AO |
-| --- | --- | --- | --- | --- | --- |
-| `admin` | ✅ | ✅ | ✅ | — | ✅ |
-| `pincab` (Pimpinan Cabang) | ✅ | ✅ (wajib) | Approve | — | ✅ (cabangnya) |
-| `kacab` (Kepala Cabang) | ✅ | ✅ (wajib) | Approve | — | ✅ (cabangnya) |
-| `kabid_pemasaran` | ✅ | ✅ (wajib) | Monitor | — | ✅ (timnya) |
-| `ao_kredit` | ✅ | — | ✅ (sendiri) | ✅ | ❌ (sendiri) |
-| `ao_remedial_fe` | ✅ | — | ✅ (sendiri) | ✅ | ❌ (sendiri) |
-| `ao_remedial_be` | ✅ | — | ✅ (sendiri) | ✅ | ❌ (sendiri) |
-| `cs` | ✅ | — | — | — | ❌ |
+| Role | Bisa Input Prospek | Bisa Delegasi | Bisa Update Pipeline | Bisa Visit | Akses CCL | Lihat Semua AO |
+| --- | --- | --- | --- | --- | --- | --- |
+| `admin` | ✅ | ✅ | ✅ | — | ✅ | ✅ |
+| `pincab` (Pimpinan Cabang) | ✅ | ✅ (wajib) | Approve | — | ✅ (cabangnya) | ✅ (cabangnya) |
+| `kacab` (Kepala Cabang) | ✅ | ✅ (wajib) | Approve | — | ✅ (cabangnya) | ✅ (cabangnya) |
+| `kabid_pemasaran` | ✅ | ✅ (wajib) | Monitor | — | ✅ (timnya) | ✅ (timnya) |
+| `ps` (Pejabat Senior Cabang) | ✅ | ✅ | Monitor | — | ✅ (cabangnya) | ✅ (cabangnya) |
+| `pe` (Pejabat Eksekutif Cabang) | ✅ | ✅ | Monitor | — | ✅ (cabangnya) | ✅ (cabangnya) |
+| `ao_kredit` | ✅ | — | ✅ (sendiri) | ✅ | — | ❌ (sendiri) |
+| `ao_remedial_fe` | ✅ | — | ✅ (sendiri) | ✅ | — | ❌ (sendiri) |
+| `ao_remedial_be` | ✅ | — | ✅ (sendiri) | ✅ | — | ❌ (sendiri) |
+| `cs` | ✅ | — | — | — | ✅ (eksekutor) | ❌ |
 
 ### Aturan Penting
 
@@ -79,15 +85,47 @@
 
 ## 3. Mapping Debitur Awal Bulan
 
-Setiap **tanggal 1**, sistem secara otomatis membagi (atau menyarankan pembagian) debitur ke AO berdasarkan **hari menunggak**:
+Setiap **tanggal 1**, sistem membagi debitur ke AO berdasarkan **hari menunggak** (DPD). Aturan mapping berbeda antara AO Kredit dan AO Remedial:
 
-| Kategori | Hari Menunggak | Ditangani Oleh | Modul Aktif |
-| --- | --- | --- | --- |
-| Lancar / Calon Baru | 0 – 30 hari | **AO Kredit** | E-Prospek, E-Pipelane, Visit AO |
-| Menunggak Ringan | 31 – 180 hari | **AO Remedial FE** (Front End) | Visit AO, Call AO |
-| Menunggak Berat / PH | 181+ hari atau status PH (Penghapusbukuan) | **AO Remedial BE** (Back End) | Visit AO, Call AO |
+| Kategori | Hari Menunggak | Ditangani Oleh | Jenis Mapping | Modul Aktif |
+| --- | --- | --- | --- | --- |
+| Lancar / Calon Baru | 0 – 30 hari | **AO Kredit** | 🤖 **Otomatis** dari database | E-Prospek, E-Pipelane, Visit AO |
+| Menunggak Ringan | 31 – 180 hari | **AO Remedial FE** (Front End) | ✍️ **Wajib manual** awal bulan | Visit AO, Call AO |
+| Menunggak Berat / PH | 181+ hari atau status PH (Penghapusbukuan) | **AO Remedial BE** (Back End) | ✍️ **Wajib manual** awal bulan | Visit AO, Call AO |
 
-> **Catatan:** Saat akhir bulan, sistem snapshot posisi semua debitur. Saat awal bulan baru, jika kategori berubah (misal dari 28 hari → 35 hari), debitur otomatis berpindah dari AO Kredit ke AO Remedial FE. Notifikasi serah-terima dikirim ke kedua AO.
+### 3.1 AO Kredit — Mapping Otomatis
+
+- Sistem **menarik langsung dari core banking / database debitur** setiap awal bulan.
+- Field acuan: `kode_ao` / `petugas` di tabel debitur. Debitur dengan DPD 0–30 yang `kode_ao` = AO Kredit X otomatis terdaftar di list-nya.
+- **Tidak perlu intervensi manual** kecuali ada koreksi/perpindahan AO.
+
+### 3.2 AO Remedial (FE & BE) — Wajib Mapping Manual
+
+Berbeda dengan AO Kredit, **mapping AO Remedial WAJIB dilakukan secara manual** oleh atasan (Kacab/Pincab/Kabid) **setiap awal bulan**, dalam dua kondisi:
+
+1. **Belum pernah dimapping** — debitur baru masuk kategori menunggak (DPD lewat 30 hari).
+2. **AO sebelumnya sudah pindah/keluar/rotasi** — perlu reassign ke AO Remedial yang baru.
+
+> ⚠️ Sistem akan **memblokir akses modul Visit AO & Call AO untuk role Remedial** sampai mapping awal bulan selesai dilakukan oleh atasan. Notifikasi reminder dikirim ke Kacab/Pincab tanggal 1, dan eskalasi ke Pincab pusat jika belum selesai sampai tanggal 5.
+
+#### Fitur Mapping Manual
+
+- **Bulk assignment**: pilih banyak debitur sekaligus → assign ke 1 AO Remedial
+- **Drag & drop interface** (opsional di fase lanjut)
+- **Bulanan snapshot**: hasil mapping bulan ini disimpan ke tabel `debitur_assignments` dengan kolom `effective_month` (YYYY-MM)
+- **Salin dari bulan lalu**: tombol "Copy mapping bulan lalu" untuk debitur yang AO-nya tidak berubah
+- **Notifikasi WhatsApp** otomatis ke AO yang baru di-assign (lihat [bagian 3.3](#33-notifikasi-mapping-via-whatsapp))
+
+### 3.3 Notifikasi Mapping via WhatsApp
+
+Setelah mapping selesai (baik otomatis untuk AO Kredit maupun manual untuk AO Remedial), sistem mengirim **notifikasi WhatsApp** ke AO bersangkutan berisi:
+
+- Jumlah total debitur yang di-handle bulan ini
+- Breakdown per kategori DPD
+- Total baki debet / outstanding
+- Link langsung ke modul Visit AO untuk melihat list lengkap
+
+> Integrasi WA dilakukan via WA Gateway (Fonnte / Wablas / WhatsApp Business API). Konfigurasi token di `config/env.php`.
 
 ---
 
@@ -181,14 +219,72 @@ Setiap AO memiliki **daftar debitur yang di-mapping** ke dirinya (lihat [bagian 
 
 Setiap visit harus terikat ke debitur dalam mapping AO tersebut. Jika kunjungan ke debitur di luar mapping, perlu approval atasan.
 
-### 4.5 Call AO
+### 4.5 Call AO / CCL (Customer Care List)
 
-Modul untuk mencatat **panggilan telepon** ke debitur (terutama untuk AO Remedial & follow-up).
+Modul untuk **panggilan & WhatsApp ke debitur** sebagai langkah preventif & tagihan dini sebelum debitur jatuh ke kategori remedial berat.
 
-- Riwayat call (in/out, durasi, hasil call)
-- Tambah call (status: kontak, tidak kontak, janji bayar, dll)
-- Jadwal Follow-up
-- Laporan CCL (Call Center Log)
+#### 4.5.1 CCL — Customer Care List (Eksekutor: CS)
+
+**CCL adalah aktivitas CS untuk menghubungi (terutama via WhatsApp) debitur dengan DPD 0–90 hari** sebagai upaya preventif & reminder pembayaran. Aktivitas ini berjalan **paralel** dengan kerja AO Kredit dan AO Remedial FE — bukan menggantikan.
+
+**Tujuan**: cegah debitur DPD 0–30 naik ke kategori menunggak, dan bantu AO Remedial FE pada DPD 31–90.
+
+#### 4.5.2 Bucket DPD untuk CCL
+
+Data debitur di CCL **dikelompokkan berdasarkan DPD by closing** (posisi akhir hari/closing) menjadi 5 bucket:
+
+| Bucket | DPD | Prioritas | Strategi Komunikasi |
+| --- | --- | --- | --- |
+| **DPD 0** | 0 hari (lancar, jatuh tempo hari ini / besok) | Reminder | WA broadcast template "Reminder Jatuh Tempo" |
+| **DPD 1–7** | 1–7 hari | Soft warning | WA personal + tanya kendala |
+| **DPD 8–30** | 8–30 hari | Aktif follow-up | WA personal + telepon, koordinasi dengan AO Kredit |
+| **DPD 31–60** | 31–60 hari | Eskalasi | WA + telepon harian, koordinasi dengan AO Remedial FE |
+| **DPD 61–90** | 61–90 hari | Critical | WA + telepon + visit (bareng AO Remedial FE) |
+
+> Debitur DPD 91+ **keluar dari CCL** dan murni ditangani AO Remedial (FE/BE) via modul Visit AO.
+
+#### 4.5.3 Akses CCL
+
+| Role | Akses | Aksi |
+| --- | --- | --- |
+| `cs` | ✅ Eksekutor utama | Lihat list, kirim WA, log hasil call/WA |
+| `ps` (Pejabat Senior Cabang) | ✅ Monitor + eksekusi | Lihat list cabangnya, eksekusi jika diperlukan, eskalasi |
+| `pe` (Pejabat Eksekutif Cabang) | ✅ Monitor + eksekusi | Sama dengan PS |
+| `kacab` / `pincab` | ✅ Monitor | Lihat performa CCL cabang, laporan |
+| `ao_kredit` / `ao_remedial` | 👁️ Read-only | Lihat history CCL atas debiturnya (sinergi) |
+
+> CCL **tidak bisa diakses oleh AO** untuk eksekusi karena memang fokus AO ada di Visit & proses kredit. AO hanya melihat hasil CCL untuk konteks.
+
+#### 4.5.4 Fitur CCL
+
+1. **Dashboard CCL** — total debitur per bucket DPD, % tercover, % janji bayar, % bayar sesudah CCL
+2. **List Debitur per Bucket** — filter per cabang, AO, produk, nominal
+3. **Kirim WA** — single atau bulk, dengan **template message** yang bisa di-edit (per bucket)
+4. **Log Hasil**:
+   - Status: `terkirim`, `dibaca`, `direspon`, `tidak respon`, `nomor mati`
+   - Hasil: `janji bayar (tanggal)`, `sudah bayar`, `keberatan`, `pindah domisili`, `tidak bisa dihubungi`
+5. **Riwayat Komunikasi** — timeline lengkap CCL + Call + Visit per debitur (gabungan seluruh kanal)
+6. **Reminder Janji Bayar** — auto-reminder ke debitur H-1 janji bayar via WA
+7. **Laporan Harian/Mingguan** — produktivitas CS, conversion rate (janji → realisasi)
+
+#### 4.5.5 Integrasi WhatsApp
+
+- **Gateway**: Fonnte / Wablas / WhatsApp Business Cloud API (TBD, dipilih saat implementasi)
+- **Template per bucket** disimpan di tabel `wa_templates` agar bisa di-edit oleh admin tanpa deploy
+- **Variable substitution**: `{nama}`, `{nominal}`, `{tgl_jatuh_tempo}`, `{dpd}`, `{nama_ao}`, dll
+- **Rate limit & antrian** untuk hindari WA banned saat broadcast besar
+
+#### 4.5.6 Call AO (untuk AO Remedial)
+
+Selain CCL yang dioperasikan CS, AO Remedial tetap punya modul **Call AO** sendiri untuk:
+
+- Mencatat panggilan telepon ke debitur menunggak (DPD 31+)
+- Riwayat call (in/out, durasi, hasil)
+- Status hasil: `kontak`, `tidak kontak`, `janji bayar`, `keberatan`, `nomor mati`
+- Jadwal follow-up
+- Laporan harian per AO
+
+> Data Call AO dan CCL **terhubung di tabel yang sama (`communications`)** dengan field `channel` (call/wa) dan `executor_role` (cs/ao). Sehingga riwayat komunikasi debitur tetap utuh terlepas siapa yang menghubungi.
 
 ---
 
@@ -271,15 +367,43 @@ flowchart TD
 ### 6.2 Alur Mapping Debitur Awal Bulan
 
 ```mermaid
+flowchart TD
+    A[Tanggal 1: Job Awal Bulan] --> B{DPD Debitur?}
+    B -- 0-30 hari --> C[Auto-map ke AO Kredit dari DB]
+    C --> D[Kirim WA rekap ke AO Kredit]
+    B -- 31-180 hari --> E{Sudah pernah dimapping?}
+    B -- 181+ atau PH --> F{Sudah pernah dimapping?}
+    E -- Belum --> G[WAJIB mapping manual oleh Kacab/Pincab]
+    E -- Sudah, AO masih aktif --> H[Salin dari bulan lalu - opsional konfirmasi]
+    E -- AO sudah pindah/keluar --> G
+    F -- Belum --> G
+    F -- Sudah, AO masih aktif --> H
+    F -- AO sudah pindah/keluar --> G
+    G --> I[Kirim WA rekap ke AO Remedial]
+    H --> I
+    D --> J[AO siap kerja: Visit + Call]
+    I --> J
+```
+
+### 6.3 Alur CCL (CS via WhatsApp)
+
+```mermaid
 flowchart LR
-    A[Debitur Aktif] --> B{Hari Menunggak?}
-    B -- 0-30 hari --> C[AO Kredit]
-    B -- 31-180 hari --> D[AO Remedial FE]
-    B -- 181+ atau PH --> E[AO Remedial BE]
-    C --> F[Visit AO]
-    D --> F
-    E --> F
-    F --> G[Call AO]
+    A[Closing Harian: Update DPD] --> B[CCL List ter-refresh]
+    B --> C{Bucket DPD?}
+    C -- DPD 0 --> D[CS: WA Reminder Jatuh Tempo]
+    C -- DPD 1-7 --> E[CS: WA Soft Warning]
+    C -- DPD 8-30 --> F[CS: WA + Telp, koord AO Kredit]
+    C -- DPD 31-60 --> G[CS: WA + Telp harian, koord AO Remedial FE]
+    C -- DPD 61-90 --> H[CS: WA + Telp + Visit bareng AO]
+    D --> I[Log hasil + status]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    I --> J{Janji bayar?}
+    J -- Ya --> K[Auto-reminder WA H-1]
+    J -- Tidak --> L[Follow up berikutnya]
 ```
 
 ---
@@ -290,19 +414,24 @@ flowchart LR
 
 - In-app notification (bell di navbar)
 - Email (untuk delegasi & SLA terlewat)
-- WhatsApp (opsional, integrasi via gateway)
+- **WhatsApp** (mapping awal bulan, reminder janji bayar, broadcast CCL) — **wajib** karena jadi kanal eksekusi CCL
 
 ### Trigger Notifikasi
 
-| Event | Penerima |
-| --- | --- |
-| Prospek baru didelegasikan ke saya | AO target |
-| Stage E-Pipelane dipindahkan | AO + atasan |
-| SLA stage **mendekati** (H-1) | AO |
-| SLA stage **terlewat** | AO + atasan |
-| Komitmen visit awal bulan belum diisi (tgl 3) | AO + atasan |
-| Visit hari ini belum dilakukan (akhir hari) | AO |
-| Mapping debitur berubah (pindah AO) | AO lama + AO baru |
+| Event | Penerima | Channel |
+| --- | --- | --- |
+| Prospek baru didelegasikan ke saya | AO target | In-app + WA |
+| Stage E-Pipelane dipindahkan | AO + atasan | In-app |
+| SLA stage **mendekati** (H-1) | AO | In-app + WA |
+| SLA stage **terlewat** | AO + atasan | In-app + WA + Email |
+| Komitmen visit awal bulan belum diisi (tgl 3) | AO + atasan | In-app + WA |
+| Visit hari ini belum dilakukan (akhir hari) | AO | In-app |
+| **Mapping AO Kredit selesai (auto, tgl 1)** | AO Kredit | In-app + **WA** (rekap bulanan) |
+| **Mapping AO Remedial belum dilakukan (tgl 1)** | Kacab/Pincab | In-app + WA |
+| **Mapping AO Remedial belum dilakukan (tgl 5)** | Pincab pusat | In-app + WA + Email (eskalasi) |
+| **Mapping AO Remedial selesai (manual)** | AO Remedial | In-app + **WA** (rekap bulanan) |
+| Janji bayar H-1 (dari CCL) | Debitur (via WA) | WA |
+| CCL bucket DPD 61–90 belum dihubungi 3 hari | CS + atasan | In-app + WA |
 
 ---
 
@@ -322,12 +451,22 @@ pipelane_stages (id, pipelane_id, stage_no, started_at, finished_at,
                  status, note, by_user_id)
 pipelane_documents (id, pipelane_id, stage_no, file_path, uploaded_by, ...)
 debitur (id, nama, no_rekening, produk, plafon, baki_debet,
-         hari_menunggak, status_kolektibilitas, ao_id, branch_id, ...)
+         hari_menunggak, dpd_bucket, status_kolektibilitas,
+         ao_id, branch_id, ...)
+debitur_assignments (id, debitur_id, ao_id, effective_month,
+                     mapping_type, assigned_by, created_at)
+                     -- mapping_type: 'auto' | 'manual'
+                     -- effective_month: YYYY-MM, snapshot per bulan
 visits (id, debitur_id, ao_id, tanggal, lat, lng, foto,
         hasil, catatan, created_at)
 visit_commitments (id, ao_id, bulan, target_visit, target_nominal,
                    realisasi_visit, realisasi_nominal)
-calls (id, debitur_id, ao_id, tanggal, durasi, hasil, catatan, ...)
+communications (id, debitur_id, channel, executor_id, executor_role,
+                ccl_bucket, status, hasil, catatan, sent_at, ...)
+                -- channel: 'call' | 'wa'
+                -- executor_role: 'cs' | 'ao_kredit' | 'ao_remedial_fe' | 'ao_remedial_be' | 'ps' | 'pe'
+                -- ccl_bucket: 'dpd_0' | 'dpd_1_7' | 'dpd_8_30' | 'dpd_31_60' | 'dpd_61_90' | null
+wa_templates (id, bucket, judul, body, variables, active, updated_by)
 delegations (id, prospek_id, from_user_id, to_user_id, reason, created_at)
 ```
 
@@ -335,8 +474,10 @@ delegations (id, prospek_id, from_user_id, to_user_id, reason, created_at)
 
 - 1 `prospek` (kredit) → 1 `pipelane`
 - 1 `pipelane` → banyak `pipelane_stages`
-- 1 `debitur` → 1 `ao` (assignment per bulan, tersimpan di `debitur_assignments` dengan `effective_month`)
-- 1 `ao` → banyak `visits`, `calls`, `visit_commitments`
+- 1 `debitur` → banyak `debitur_assignments` (per bulan, snapshot via `effective_month`)
+- 1 `ao` → banyak `visits`, `visit_commitments`, `communications` (channel=call)
+- 1 `cs` → banyak `communications` (channel=wa, ccl_bucket terisi)
+- `communications` adalah **single source** untuk semua interaksi (Call AO + CCL) — pisah hanya by `channel` & `executor_role`
 
 ---
 
@@ -378,9 +519,23 @@ POST   /api/visits/commitments        # input komitmen awal bulan
 GET    /api/calls
 POST   /api/calls
 
+GET    /api/ccl                       # list debitur per bucket DPD (CS/PS/PE)
+GET    /api/ccl/buckets               # ringkasan jumlah per bucket
+POST   /api/ccl/send-wa               # kirim WA single/bulk
+POST   /api/ccl/{id}/log              # log hasil call/WA
+GET    /api/ccl/templates             # list template WA per bucket
+PUT    /api/ccl/templates/{id}        # admin only
+
 GET    /api/debitur                   # list debitur per AO
 GET    /api/debitur/mapping           # mapping bulanan
-POST   /api/debitur/remap             # admin only
+GET    /api/debitur/mapping/status    # cek status mapping (auto/manual/pending)
+POST   /api/debitur/mapping/auto      # trigger auto-map AO Kredit (tgl 1, cron)
+POST   /api/debitur/mapping/manual    # bulk assign debitur ke AO Remedial
+POST   /api/debitur/mapping/copy-last # salin mapping bulan lalu
+POST   /api/debitur/remap             # admin/atasan re-assign
+
+POST   /api/wa/send                   # internal endpoint kirim WA via gateway
+POST   /api/wa/webhook                # receive delivery status dari gateway
 ```
 
 ---
@@ -422,6 +577,8 @@ Mapping otomatis (rule-based di BKK Nexus):
 | --- | --- |
 | `Pimpinan Cabang` / `Kepala Cabang` | `pincab` / `kacab` |
 | `Kabid Pemasaran` | `kabid_pemasaran` |
+| `Pejabat Senior` (di cabang) | `ps` |
+| `Pejabat Eksekutif` (di cabang) | `pe` |
 | `AO Kredit` | `ao_kredit` |
 | `AO Remedial` (Front End) | `ao_remedial_fe` |
 | `AO Remedial` (Back End) | `ao_remedial_be` |
@@ -532,21 +689,27 @@ $userInitial = 'H';
 
 ### Fase 2 — Database & API
 
-- [ ] Skema database lengkap (migration script)
-- [ ] Integrasi SSO (login, whoami, role mapping)
+- [ ] Skema database lengkap (migration script) — termasuk `debitur_assignments`, `communications`, `wa_templates`
+- [ ] Integrasi SSO (login, whoami, role mapping termasuk `ps` & `pe`)
 - [ ] Middleware auth & role guard
 - [ ] API CRUD E-Prospek
 - [ ] API CRUD E-Pipelane (advance, approve, reject)
 - [ ] API CRUD Visit AO + komitmen
 - [ ] API CRUD Call AO
+- [ ] API CCL (list bucket DPD, kirim WA, log hasil, template)
+- [ ] API Mapping (auto AO Kredit, manual AO Remedial, copy bulan lalu)
 
 ### Fase 3 — Otomasi & Integrasi
 
-- [ ] Job tanggal 1: mapping debitur otomatis
+- [ ] **Cron tanggal 1**: auto-map AO Kredit dari core/database debitur
+- [ ] **Cron tanggal 1**: kirim WA rekap mapping ke setiap AO
+- [ ] **Cron tanggal 1, 3, 5**: reminder & eskalasi mapping AO Remedial belum selesai
 - [ ] SLA monitor (cron) → notifikasi
 - [ ] Notifikasi in-app (bell)
 - [ ] Notifikasi email
-- [ ] Integrasi WhatsApp gateway
+- [ ] **Integrasi WhatsApp gateway** (Fonnte/Wablas/WA Cloud API) — wajib untuk CCL
+- [ ] CCL bulk WA broadcast dengan rate limit
+- [ ] Auto-reminder janji bayar H-1 via WA
 - [ ] Export laporan PDF/Excel
 
 ### Fase 4 — Lanjutan
