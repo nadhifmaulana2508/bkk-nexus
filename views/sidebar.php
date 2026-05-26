@@ -43,10 +43,10 @@ $menuItems = [
         'label' => 'Visit AO',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>',
         'sub' => [
-            ['label' => 'Jadwal Visit', 'page' => 'visit-ao'],
-            ['label' => 'Riwayat Visit', 'page' => 'visit-ao'],
-            ['label' => 'Tambah Visit', 'page' => 'visit-ao'],
-            ['label' => 'Peta Lokasi', 'page' => 'visit-ao'],
+            ['label' => 'Overview', 'page' => 'visit-ao', 'tab' => 'overview'],
+            ['label' => 'Mapping Debitur', 'page' => 'visit-ao', 'tab' => 'mapping'],
+            ['label' => 'Janji Bayar', 'page' => 'visit-ao', 'tab' => 'janji-bayar'],
+            ['label' => 'Report', 'page' => 'visit-ao', 'tab' => 'report'],
         ]
     ],
     [
@@ -108,11 +108,20 @@ $menuItems = [
                 <!-- Sub Menu (toggle via JS, tanpa reload) -->
                 <?php if (!empty($item['sub'])): ?>
                 <div id="<?= $menuId ?>" class="sub-menu ml-5 mt-1 space-y-0.5 overflow-hidden transition-all duration-300 <?= $isActive ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0' ?>">
-                    <?php foreach ($item['sub'] as $subIndex => $sub): ?>
-                        <a href="<?= BASE_URL . $sub['page'] ?>" 
+                    <?php
+                        $currentSubTab = $_GET['tab'] ?? null;
+                        foreach ($item['sub'] as $subIndex => $sub):
+                            $subHref = BASE_URL . $sub['page'] . (!empty($sub['tab']) ? '?tab=' . $sub['tab'] : '');
+                            // Sub aktif jika: parent aktif DAN (tab cocok ATAU tab tidak diset & subIndex 0)
+                            $isSubActive = $isActive && (
+                                (!empty($sub['tab']) && $sub['tab'] === $currentSubTab) ||
+                                (empty($sub['tab']) && $currentSubTab === null && $subIndex === 0)
+                            );
+                    ?>
+                        <a href="<?= $subHref ?>"
                            class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap sidebar-label
-                                  <?= ($isActive && $subIndex === 0) ? 'text-white bg-white/10' : 'text-indigo-300 hover:text-white hover:bg-white/5' ?>">
-                            <span class="w-1.5 h-1.5 rounded-full <?= ($isActive && $subIndex === 0) ? 'bg-primary' : 'bg-indigo-400/50' ?> mr-2.5 flex-shrink-0"></span>
+                                  <?= $isSubActive ? 'text-white bg-white/10' : 'text-indigo-300 hover:text-white hover:bg-white/5' ?>">
+                            <span class="w-1.5 h-1.5 rounded-full <?= $isSubActive ? 'bg-primary' : 'bg-indigo-400/50' ?> mr-2.5 flex-shrink-0"></span>
                             <?= $sub['label'] ?>
                         </a>
                     <?php endforeach; ?>
