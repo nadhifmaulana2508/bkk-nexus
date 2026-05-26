@@ -1,17 +1,35 @@
 <?php
 /**
- * Mobile Visit AO - Placeholder
+ * Mobile Visit AO - Dispatcher untuk AO di lapangan
+ * 
+ * Tabs (pakai bottom-nav):
+ *   - home        : dashboard ringkas AO (default)
+ *   - debitur     : list debitur kelolaan + filter bucket
+ *   - form        : form kunjungan baru (GPS + foto + hasil)
+ *   - janji-bayar : list janji bayar yang harus diingat
+ *   - report      : statistik kelolaan AO bulan ini
  */
+
+// Load shared data + helpers
+require __DIR__ . '/visit-ao/_data.php';
+
+// Tab routing (default 'home')
+$allowedTabs = ['home', 'debitur', 'form', 'janji-bayar', 'report'];
+$activeTab   = $_GET['tab'] ?? 'home';
+if (!in_array($activeTab, $allowedTabs, true)) $activeTab = 'home';
+
+// AO yang sedang login (saat SSO siap, ambil dari token)
+$currentAo = vao_ao_by_id($aos, $currentAoId);
+$myDebiturs    = vao_filter_debitur_by_ao($debiturs, $currentAoId);
+$myKunjungans  = array_values(array_filter($kunjungans, fn($k) => $k['ao_id'] === $currentAoId));
+$myJanjiBayars = array_values(array_filter($janjiBayars, fn($j) => $j['ao_id'] === $currentAoId));
 ?>
-<div class="px-4 pt-6 animate-fade-in">
-    <div class="bg-white rounded-2xl shadow-card p-6 border border-gray-50 text-center">
-        <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <svg class="w-7 h-7 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-        </div>
-        <h2 class="text-lg font-bold text-textMain">Visit AO</h2>
-        <p class="text-sm text-textSub mt-1">Halaman ini sedang dalam pengembangan.</p>
-    </div>
-</div>
+
+<?php
+    $partialFile = __DIR__ . '/visit-ao/m-' . $activeTab . '.php';
+    if (file_exists($partialFile)) {
+        include $partialFile;
+    } else {
+        echo '<div class="px-4 pt-6"><div class="bg-white rounded-2xl shadow-card p-6 text-center text-textSub">Halaman dalam pengembangan.</div></div>';
+    }
+?>
